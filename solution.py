@@ -27,14 +27,22 @@ def solution(p: float, x: np.array) -> tuple:
     distances_list = x
     time = 14
     n = len(distances_list)
-
+    error_distribution = np.random.exponential(1, size = len(x))
+    error_distribution = np.full(len(x),1/2) - error_distribution
+    distances_with_error = distances_list +error_distribution
     # x = x_0 + v_0*t + a*t^2/2  ===> a*t^2 = 2*x ===> 2*x/t^2
-    acceleration_list = (np.array(distances_list)*2)/(time**2)
+    acceleration_list = (np.array(distances_with_error)*2)/(time**2)
     # задаем распределение ошибки измерения
-    error_distribution = lambda x: 1/2 - np.exp(1)
+    #error_distribution = lambda x: 1/2 - np.exp(1)
     # преобразуем данные с учетом ошибки измерения
-    acceleration_with_error = acceleration_list + error_distribution(acceleration_list)
+    #acceleration_with_error = acceleration_list + error_distribution(acceleration_list)
+   
 
+    loc = acceleration_list.mean()
+    scale = np.sqrt(np.var(acceleration_list)) / np.sqrt(len(acceleration_list))
+    return loc - scale * norm.ppf(1 - alpha / 2), \
+           loc - scale * norm.ppf(alpha / 2)
+    '''
     mean = np.mean(acceleration_with_error)
     std_error = np.std(acceleration_with_error, ddof=1) / np.sqrt(n)
     t_val = abs(t.ppf(alpha / 2, n - 1))
@@ -43,7 +51,7 @@ def solution(p: float, x: np.array) -> tuple:
     upper_bound = np.exp(mean + interval)
     lower_bound = np.exp(mean - interval)
     return (upper_bound, lower_bound)
-
+    '''
 
 
 #p = 0.95
